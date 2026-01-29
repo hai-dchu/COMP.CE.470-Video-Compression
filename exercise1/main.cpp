@@ -1,5 +1,5 @@
 // Student1: Hai Chu
-// Student2:
+// Student2: Chi Mai
 // How AI was used in the exercise:
 
 #include <limits.h>
