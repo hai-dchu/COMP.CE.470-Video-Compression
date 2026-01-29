@@ -4,3 +4,5 @@
 
 */CMakeFiles
 *.cmake
+*build
+*/CMakeCache.txt
