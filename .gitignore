@@ -3,3 +3,4 @@
 .bash*
 
 */CMakeFiles
+*.cmake
