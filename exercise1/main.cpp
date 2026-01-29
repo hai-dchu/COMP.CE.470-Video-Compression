@@ -110,10 +110,52 @@ class FixedPoint {
         return FixedPoint(0, 0);
     }
     FixedPoint operator-(const FixedPoint& other) const {
+        if ((-2 >> 1) < 0) {  // Arithmetic Shift Right (ASR)
+            // Decide the smaller and larger values
+            int first = m_decimal_digits <= other.m_decimal_digits ? m_decimal_digits : other.m_decimal_digits;
+            int second = m_decimal_digits > other.m_decimal_digits ? m_decimal_digits : other.m_decimal_digits;
+            int value_first = m_decimal_digits <= other.m_decimal_digits ? m_value : other.m_value;
+            int value_second = m_decimal_digits > other.m_decimal_digits ? m_value : other.m_value;
+            int bit_count_first = m_decimal_digits <= other.m_decimal_digits ? bit_count : other.bit_count;
+            T max = 1 << (bit_count_first - 2);  // second most significant bit for type T
+            bool swapped = (first != m_decimal_digits) ? true : false;
+            // In case the two values have different decimal digits,
+            // the smaller will be shifted right,
+            // while the larger be shifted left
+            // until the decimal digits of the two are equal
+            while (first != second && !(value_first & max)) {
+                // !(value_first & max) decide if the last non-sign bit of value_first
+                // is 0 or 1. If 1 then it is not suitable for left shift anymore
+                first++;
+                value_first <<= 1;
+            }
+            while (first != second && !(value_second & 1)) {
+                // !(value_second & 1) decide if the first bit of value_second
+                // is 0 or 1. If 1 then it is not suitable for left shift anymore
+                second--;
+                value_second >>= 1;
+            }
+
+            if (first != second) {
+                // cannot shift either value_first left or value_second right
+                // anymore without changing they original values
+                // TODO
+                std::cout << "Cannot balance decimal digits of two numbers" << std::endl;
+                return FixedPoint(0, 0);
+            }
+
+            // The actual implementation, assuming two numbers has the same decimal digits
+            int new_m_value = value_first - value_second;
+            if (swapped) {
+                new_m_value = -new_m_value;
+            }
+            return FixedPoint(new_m_value, first);
+        }
         return FixedPoint(0, 0);
+        
     }
     FixedPoint operator*(const FixedPoint& other) const {
-        return FixedPoint(0, 0);
+        return FixedPoint(m_value * other.m_value, m_decimal_digits + other.m_decimal_digits);
     }
     FixedPoint operator/(const FixedPoint& other) const {
         return FixedPoint(0, 0);
@@ -127,7 +169,7 @@ class FixedPoint {
     }
 
     FixedPoint operator>>(int shift) const {
-        int new_value = (m_value + (1 << shift - 1)) >> shift;
+        int new_value = (m_value + (1 << (shift - 1))) >> shift;
         int new_decimal_digits = m_decimal_digits >= shift ? m_decimal_digits - shift : 0;
         return FixedPoint(new_value, new_decimal_digits);
     }
