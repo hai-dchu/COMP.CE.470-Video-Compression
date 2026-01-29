@@ -118,7 +118,7 @@ class FixedPoint {
             int value_second = m_decimal_digits > other.m_decimal_digits ? m_value : other.m_value;
             int bit_count_first = m_decimal_digits <= other.m_decimal_digits ? bit_count : other.bit_count;
             T max = 1 << (bit_count_first - 2);  // second most significant bit for type T
-            bool swapped = (first != m_decimal_digits) ? true : false;
+            bool swapped = (first != m_decimal_digits);
             // In case the two values have different decimal digits,
             // the smaller will be shifted right,
             // while the larger be shifted left
