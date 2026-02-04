@@ -124,8 +124,13 @@ class FixedPoint {
             int value_first = m_decimal_digits <= other.m_decimal_digits ? m_value : other.m_value;
             int value_second = m_decimal_digits > other.m_decimal_digits ? m_value : other.m_value;
             int bit_count_first = m_decimal_digits <= other.m_decimal_digits ? bit_count : other.bit_count;
+            int bit_count_second = m_decimal_digits > other.m_decimal_digits ? bit_count : other.bit_count;
             T max = 1 << (bit_count_first - 2);  // second most significant bit for type T
+            int sign_first = value_first >> (bit_count_first - 1) == 0 ? 1 : -1; // sign of first number
+            int sign_second = value_second >> (bit_count_second - 1) == 0 ? 1 : -1; // sign of second number
             bool swapped = (first != m_decimal_digits);
+            value_first = abs(value_first);
+            value_second = abs(value_second);
             // In case the two values have different decimal digits,
             // the smaller will be shifted right,
             // while the larger be shifted left
@@ -152,7 +157,7 @@ class FixedPoint {
             }
 
             // The actual implementation, assuming two numbers has the same decimal digits
-            int new_m_value = value_first - value_second;
+            int new_m_value = sign_first * value_first - sign_second * value_second;
             if (swapped) {
                 new_m_value = -new_m_value;
             }
@@ -258,6 +263,7 @@ void test() {
     c = c >> 4;
     compare(c, "0.5");
 
+    // own tests for edge cases
     a = FixedPoint(-1, 1);
     b = FixedPoint(-2, 0);
     c = a + b;
@@ -273,6 +279,26 @@ void test() {
     // std::bitset<8> b2(7);
     // a.print_value(); std::cout<<b1<<std::endl;
     // b.print_value(); std::cout<<b2<<std::endl;
+
+    a = FixedPoint(-1, 1);
+    b = FixedPoint(-2, 0);
+    c = a - b;
+    compare(c, "1.5");
+
+    // debug steps
+    a.print_value();
+    b.print_value();
+
+    a = FixedPoint(-9, 3);
+    b = FixedPoint(7, 1);
+    c = a - b;
+    compare(c, "-4.625");
+
+    // debug steps
+    // std::bitset<8> b1(-9);
+    // std::bitset<8> b2(7);
+    a.print_value(); // std::cout<<b1<<std::endl;
+    b.print_value(); // std::cout<<b2<<std::endl;
 
     /* Uncomment if doing the extra part
     c = a / b;
