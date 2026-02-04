@@ -266,11 +266,13 @@ void test() {
     a = FixedPoint(-9, 3);
     b = FixedPoint(7, 1);
     c = a + b;
-    std::bitset<8> b1(-9);
-    std::bitset<8> b2(7);
-    a.print_value(); std::cout<<b1<<std::endl;
-    b.print_value(); std::cout<<b2<<std::endl;
     compare(c, "2.375");
+
+    // debug steps
+    // std::bitset<8> b1(-9);
+    // std::bitset<8> b2(7);
+    // a.print_value(); std::cout<<b1<<std::endl;
+    // b.print_value(); std::cout<<b2<<std::endl;
 
     /* Uncomment if doing the extra part
     c = a / b;
