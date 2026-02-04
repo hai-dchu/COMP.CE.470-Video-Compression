@@ -1,8 +1,10 @@
 .devcontainer
 .vscode
 .bash*
+.sudo*
 
 */CMakeFiles
 *.cmake
 *build
 */CMakeCache.txt
+Makefile

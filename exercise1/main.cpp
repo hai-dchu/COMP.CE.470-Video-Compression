@@ -12,6 +12,8 @@
 #include <sstream>
 #include <string>
 
+#include <bitset>
+
 // Precompute the scaling factors used for printing the fixed point numbers
 constexpr std::array<uint64_t, 63> computeScalingFactors() {
     std::array<uint64_t, 63> factors = {};
@@ -76,7 +78,12 @@ class FixedPoint {
             int value_first = m_decimal_digits <= other.m_decimal_digits ? m_value : other.m_value;
             int value_second = m_decimal_digits > other.m_decimal_digits ? m_value : other.m_value;
             int bit_count_first = m_decimal_digits <= other.m_decimal_digits ? bit_count : other.bit_count;
-            T max = 1 << (bit_count_first - 2);  // second most significant bit for type T
+            int bit_count_second = m_decimal_digits > other.m_decimal_digits ? bit_count : other.bit_count;
+            T max = (T)1 << (bit_count_first - 2);  // second most significant bit for type T
+            int sign_first = value_first >> (bit_count_first - 1) == 0 ? 1 : -1; // sign of first number
+            int sign_second = value_second >> (bit_count_second - 1) == 0 ? 1 : -1; // sign of second number
+            value_first = abs(value_first);
+            value_second = abs(value_second);
 
             // In case the two values have different decimal digits,
             // the smaller will be shifted right,
@@ -104,7 +111,7 @@ class FixedPoint {
             }
 
             // The actual implementation, assuming two numbers has the same decimal digits
-            int new_m_value = value_first + value_second;
+            int new_m_value = sign_first * value_first + sign_second * value_second;
             return FixedPoint(new_m_value, first);
         }
         return FixedPoint(0, 0);
@@ -152,7 +159,6 @@ class FixedPoint {
             return FixedPoint(new_m_value, first);
         }
         return FixedPoint(0, 0);
-        
     }
     FixedPoint operator*(const FixedPoint& other) const {
         return FixedPoint(m_value * other.m_value, m_decimal_digits + other.m_decimal_digits);
@@ -251,6 +257,20 @@ void test() {
     c = FixedPoint(16, 5);
     c = c >> 4;
     compare(c, "0.5");
+
+    a = FixedPoint(-1, 1);
+    b = FixedPoint(-2, 0);
+    c = a + b;
+    compare(c, "-2.5");
+
+    a = FixedPoint(-9, 3);
+    b = FixedPoint(7, 1);
+    c = a + b;
+    std::bitset<8> b1(-9);
+    std::bitset<8> b2(7);
+    a.print_value(); std::cout<<b1<<std::endl;
+    b.print_value(); std::cout<<b2<<std::endl;
+    compare(c, "2.375");
 
     /* Uncomment if doing the extra part
     c = a / b;
