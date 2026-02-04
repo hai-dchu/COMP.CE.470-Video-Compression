@@ -1,6 +1,6 @@
 // Student1: Hai Chu
 // Student2: Chi Mai
-// How AI was used in the exercise:
+// How AI was used in the exercise: No AI were used in the exercise
 
 #include <limits.h>
 #include <algorithm>
