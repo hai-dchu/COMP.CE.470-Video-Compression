@@ -1,0 +1,3 @@
+[submodule "hai-and-chi"]
+	path = hai-and-chi
+	url = git@course-gitlab.tuni.fi:comp-ce-470-video-compression_2025-2026/hai-and-chi.git

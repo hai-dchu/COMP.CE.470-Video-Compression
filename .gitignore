@@ -2,9 +2,20 @@
 .vscode
 .bash*
 .sudo*
+*.zip
 
 */CMakeFiles
 *.cmake
 *build
 */CMakeCache.txt
 Makefile
+.containerize
+
+# exercise 2
+# binary files
+tau_out
+x264_out
+test_encoders_decoders.sh
+*.yuv
+*.xlsx
+hai-and-chi/.git*
