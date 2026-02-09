@@ -19,3 +19,5 @@ test_encoders_decoders.sh
 *.yuv
 *.xlsx
 hai-and-chi/.git*
+
+!foreman_352x288.yuv
