@@ -430,13 +430,15 @@ static const uint8_t SAMPLE_FLAG_INIT[2][9] = {
   {  0,  10,  0,  13,  10,  10,  10,  13, 10 },
 };
 
-bool is_vowel(char c) {
-  return c == 'a' || c == 'A' 
-      || c == 'i' || c == 'I'
-      || c == 'u' || c == 'U'
-      || c == 'e' || c == 'E'
-      || c == 'o' || c == 'O'
-      || c == 'y' || c == 'Y';
+bool is_special(char c) {
+  return c == ' ' || c == 'e' 
+      || c == 't' || c == 'o'
+      || c == 'a' || c == 'h'
+      || c == 'i' || c == 'n'
+      || c == 's' || c == 'd'
+      || c == 'r' || c == 'l'
+      || c == '\r' || c == '\n'
+      || c == 'u' || c == '"';
 }
 
 int main() {
@@ -446,24 +448,26 @@ int main() {
     ctx_init(&ctx[i], SAMPLE_FLAG_INIT[0][i] /*probability*/, SAMPLE_FLAG_INIT[1][i]/*change rate*/);
   }
 
-  std::vector<uint8_t> input_data(test_ipsum_lorem, test_ipsum_lorem + strlen(test_ipsum_lorem) - 1);
+  // std::vector<uint8_t> input_data(test_ipsum_lorem, test_ipsum_lorem + strlen(test_ipsum_lorem) - 1);
 
   // FOR BONUS: read winnie_the_pooh.txt as input data
-  // std::vector<uint8_t> input_data;
-  // {
-  //   std::ifstream file("winnie_the_pooh.txt", std::ios::binary);
-  //   if (!file.is_open()) {
-  //     std::cerr << "Error: Could not open file 'winnie_the_pooh.txt'\n";
-  //     return 1;
-  //   }
-  //   input_data = std::vector<uint8_t>(std::istreambuf_iterator<char>(file), {});
-  // }
+  std::vector<uint8_t> input_data;
+  {
+    std::ifstream file("winnie_the_pooh.txt", std::ios::binary);
+    if (!file.is_open()) {
+      std::cerr << "Error: Could not open file 'winnie_the_pooh.txt'\n";
+      return 1;
+    }
+    input_data = std::vector<uint8_t>(std::istreambuf_iterator<char>(file), {});
+  }
 
-  // Context for vowels
-  std::map<char, int> vowel_binarization = {
-  {'a', 0b0000}, {'A', 0b0001}, {'e', 0b0010}, {'E', 0b0011},
-  {'i', 0b0100}, {'I', 0b0101}, {'o', 0b0110}, {'O', 0b0111},
-  {'u', 0b1000}, {'U', 0b1001}, {'y', 0b1010}, {'Y', 0b1011},
+  // Context for special character
+  // Top 16 most common characters in winnie_the_pooh.txt
+  std::map<char, int> special_binarization = {
+  {' ', 0b0000}, {'e', 0b0001}, {'t', 0b0010}, {'o', 0b0011},
+  {'a', 0b0100}, {'h', 0b0101}, {'i', 0b0110}, {'n', 0b0111},
+  {'s', 0b1000}, {'d', 0b1001}, {'r', 0b1010}, {'l', 0b1011},
+  {'\r', 0b1100}, {'\n', 0b1101}, {'u', 0b1110}, {'"', 0b1111} 
   };
   
 
@@ -476,11 +480,12 @@ int main() {
   
 
   for(int i = 0; i < input_data_size; i++) {
-    bool is_vowel_char = is_vowel(input_data[i]);
+    bool is_vowel_char = is_special(input_data[i]);
+    encoder.m_ctx = &ctx[8];
+    encoder.encodeBit(is_vowel_char ? 1 : 0);
+
     if (is_vowel_char) {
-      encoder.m_ctx = &ctx[8];
-      encoder.encodeBit(is_vowel_char ? 1 : 0);
-      encoder.encodeBinsEP(vowel_binarization[input_data[i]], 4);
+      encoder.encodeBinsEP(special_binarization[input_data[i]], 4);
       continue;
     }
     
@@ -524,10 +529,10 @@ int main() {
 
   // JUST AN EXAMPLE, REPLACE WITH OWN DECODING LOGIC FOR BONUS
   for(int i = 0; i < input_data_size; i++) {
+    decoder.m_ctx = &dec_ctx[8];
     if (decoder.decodeBit()) {
-      decoder.m_ctx = &dec_ctx[8];
       int identifier = decoder.decodeBinsEP(4);
-        for(auto& pair : vowel_binarization) {
+        for(auto& pair : special_binarization) {
           if(pair.second == identifier) {
             decoded_data.push_back(pair.first);
             break;
