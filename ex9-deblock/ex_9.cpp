@@ -185,6 +185,7 @@ void ex9_deblock(uint8_t* img) {
   constexpr int block_width = 16;
   constexpr int block_height = 16;
 
+  // source: https://doi.org/10.1016/j.image.2004.06.003
   // loop vertically
   // 6 blocks around the border are checked: i, i+1, i+2, i+3, i+4, i + 5
   for (size_t i = 0; i < HEIGHT; ++i) {
